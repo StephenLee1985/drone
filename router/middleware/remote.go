@@ -6,11 +6,12 @@ import (
 	"github.com/drone/drone/remote/github"
 	"github.com/drone/drone/remote/gitlab"
 	"github.com/drone/drone/remote/gogs"
+	"github.com/drone/drone/remote/sryun"
 
 	"github.com/Sirupsen/logrus"
+	"github.com/drone/drone/remote/bitbucketserver"
 	"github.com/gin-gonic/gin"
 	"github.com/ianschenck/envflag"
-	"github.com/drone/drone/remote/bitbucketserver"
 )
 
 var (
@@ -37,6 +38,8 @@ func Remote() gin.HandlerFunc {
 		remote_ = gitlab.Load(*config)
 	case "bitbucketserver":
 		remote_ = bitbucketserver.Load(*config)
+	case "sryun":
+		remote_ = sryun.Load(*config)
 	default:
 		logrus.Fatalln("remote configuration not found")
 	}
