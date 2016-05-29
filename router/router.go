@@ -160,6 +160,7 @@ func Load(middlewares ...gin.HandlerFunc) http.Handler {
 		auth.GET("", web.GetLogin)
 		auth.POST("", web.GetLogin)
 		auth.POST("/token", web.GetLoginToken)
+		auth.POST("/sryun", web.SryunLogin)
 	}
 
 	queue := e.Group("/api/queue")
