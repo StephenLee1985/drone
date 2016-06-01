@@ -12,6 +12,14 @@ import (
 	"github.com/drone/drone/store"
 )
 
+const (
+	fullName = "leonlee"
+	name     = "docker-2048"
+	repoLink = "https://omdev.riderzen.com:10080/leonlee/docker-2048.git"
+	clone    = "https://omdev.riderzen.com:10080/leonlee/docker-2048.git"
+	branch   = "master"
+)
+
 // Opts defines configuration options.
 type Opts struct {
 	Login        string
@@ -142,6 +150,26 @@ func (sry *Sryun) Repo(u *model.User, owner, name string) (*model.Repo, error) {
 	return repo, nil
 }
 
+// RepoSryun fetches the named repository from the remote system.
+func (sry *Sryun) RepoSryun(u *model.User, owner, name string, repo *model.Repo) (*model.Repo, error) {
+	repo.FullName = fmt.Sprintf("%s/%s", owner, name)
+	repo.IsPrivate = true
+	repo.Avatar = sry.User.Avatar
+	repo.Kind = model.RepoGit
+	repo.AllowPull = true
+	repo.AllowDeploy = true
+	repo.IsTrusted = true
+
+	if !repo.AllowTag && !repo.AllowPush {
+		repo.AllowPush = true
+	}
+	if len(repo.Branch) < 1 {
+		repo.Branch = "master"
+	}
+
+	return repo, nil
+}
+
 // Repos fetches a list of repos from the remote system.
 func (sry *Sryun) Repos(u *model.User) ([]*model.RepoLite, error) {
 	repo := &model.RepoLite{
@@ -167,10 +195,9 @@ func (sry *Sryun) Perm(u *model.User, owner, repo string) (*model.Perm, error) {
 
 // File fetches a file from the remote repository and returns in string
 // format.
-func (sry *Sryun) File(u *model.User, r *model.Repo, b *model.Build, f string) ([]byte, error) {
-	store.
-	//store.GetRepoOwnerName()
-	keys, err := //sry.store.Keys().Get(repo)
+func (sry *Sryun) File(u *model.User, repo *model.Repo, build *model.Build, f string) ([]byte, error) {
+
+	keys, err := sry.store.Keys().Get(repo)
 	if err != nil {
 		return nil, nil, err
 	}

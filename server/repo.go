@@ -10,6 +10,7 @@ import (
 
 	"github.com/drone/drone/cache"
 	"github.com/drone/drone/remote"
+	"github.com/drone/drone/remote/sryun"
 	"github.com/drone/drone/router/middleware/session"
 	"github.com/drone/drone/shared/httputil"
 	"github.com/drone/drone/shared/token"
@@ -27,7 +28,30 @@ func PostRepo(c *gin.Context) {
 		return
 	}
 
-	r, err := remote.Repo(user, owner, name)
+	sryunRemote, isSryun := remote.(*sryun.Sryun)
+	var err error
+	var r *model.Repo
+	var meta = struct {
+		*model.Repo
+		Period uint64 `json:"period"`
+	}{}
+
+	if isSryun {
+		err := c.Bind(&meta)
+		meta.Owner = owner
+		meta.Name = name
+		log.Println("meta bind err", err)
+		log.Printf("meta %q", meta)
+		if err != nil {
+			c.AbortWithStatus(http.StatusBadRequest)
+			return
+		}
+		r, err = sryunRemote.RepoSryun(user, owner, name, meta.Repo)
+	} else {
+		r, err = remote.Repo(user, owner, name)
+	}
+	//r, err := remote.Repo(user, owner, name)
+
 	if err != nil {
 		c.String(404, err.Error())
 		return
